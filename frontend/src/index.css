@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 217 91% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 347 77% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 53%;
+
+    --radius: 0.75rem;
+
+    /* Clinical vital colors */
+    --vital-hr: 0 84% 60%;
+    --vital-spo2: 217 91% 60%;
+    --vital-bp: 160 84% 39%;
+    --vital-rr: 258 90% 66%;
+    --vital-temp: 25 95% 53%;
+
+    /* Semantic clinical */
+    --clinical-warning: 38 92% 50%;
+    --clinical-critical: 347 77% 50%;
+    --clinical-success: 142 76% 36%;
+    --clinical-info: 217 91% 53%;
+
+    /* Risk level backgrounds */
+    --risk-low-bg: 142 76% 94%;
+    --risk-low-text: 143 64% 24%;
+    --risk-medium-bg: 48 96% 89%;
+    --risk-medium-text: 32 95% 28%;
+    --risk-high-bg: 0 93% 94%;
+    --risk-high-text: 0 63% 31%;
+    --risk-critical-bg: 347 100% 93%;
+    --risk-critical-text: 347 77% 50%;
+
+    /* Card styling */
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+    --card-shadow-hover: 0 4px 6px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 16% 47%;
+    --sidebar-primary: 217 91% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 100% 97%;
+    --sidebar-accent-foreground: 217 91% 53%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 217 91% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .card-clinical {
+    @apply bg-card rounded-2xl p-6;
+    box-shadow: var(--card-shadow);
+  }
+
+  .card-clinical-hover {
+    @apply bg-card rounded-2xl p-6 transition-shadow duration-200;
+    box-shadow: var(--card-shadow);
+  }
+
+  .card-clinical-hover:hover {
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted) / 0.5) 50%, hsl(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-critical {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--clinical-critical) / 0.4); }
+    50% { box-shadow: 0 0 0 8px hsl(var(--clinical-critical) / 0); }
+  }
+
+  .pulse-critical {
+    animation: pulse-critical 2s ease-in-out infinite;
+  }
+
+  @keyframes ecg-line {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .clinical-disclaimer {
+    @apply text-xs italic;
+    color: hsl(215 16% 65%);
+  }
+}
