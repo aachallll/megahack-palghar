@@ -47,7 +47,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-> **Note (Python 3.13+):** If `numpy==1.26.4` or `Pillow==10.4.0` fail to install, install dependencies manually with relaxed versions:
+> **Note (Python 3.13+):** If `numpy==1.26.4` or `Pillow==10.4.0` fail to install, install dependencies manually with relaxed vers+ions:
 > ```bash
 > pip install fastapi==0.115.0 "uvicorn[standard]==0.30.6" "websockets>=13.0" opencv-python-headless==4.10.0.84 "numpy>=1.26" python-multipart==0.0.9 supabase==2.7.4 python-dotenv==1.0.1 "Pillow>=10.4" supervision==0.22.0 groq==0.11.0 aiofiles==23.2.1
 > ```

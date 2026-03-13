@@ -33,7 +33,6 @@ const severityBgColors = {
 };
 
 export default function Alerts() {
-  const navigate = useNavigate();
   const { user, hasRole } = useAuth();
   const { data: alerts = [], isLoading } = useGlobalAlerts();
   const ackMutation = useAcknowledgeAlert();
@@ -45,6 +44,7 @@ export default function Alerts() {
     type: 'all',
     search: ''
   });
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
 
@@ -298,7 +298,7 @@ export default function Alerts() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className={`relative overflow-hidden p-5 rounded-2xl bg-white border border-gray-100 shadow-sm transition-all hover:shadow-md cursor-pointer ${alert.severity === 'critical' && !alert.acknowledged_at ? 'ring-2 ring-red-500/20 pulse-critical' : ''
+                  className={`relative overflow-hidden p-5 rounded-2xl bg-white border border-gray-100 shadow-sm transition-all hover:shadow-md cursor-pointer hover:border-primary/50 group/card ${alert.severity === 'critical' && !alert.acknowledged_at ? 'ring-2 ring-red-500/20 pulse-critical' : ''
                     }`}
                   onClick={() => navigate(`/dashboard/telemetry/${alert.patient_id}`)}
                 >
@@ -343,7 +343,10 @@ export default function Alerts() {
                     <div className="flex flex-col gap-2">
                       {!alert.acknowledged_at && hasRole('nurse', 'doctor', 'admin') && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); ackMutation.mutate({ alertId: alert.id, userId: user!.id, patientId: alert.patient_id }); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            ackMutation.mutate({ alertId: alert.id, userId: user!.id, patientId: alert.patient_id });
+                          }}
                           disabled={ackMutation.isPending}
                           className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center min-w-[120px]"
                         >
@@ -357,7 +360,10 @@ export default function Alerts() {
 
                       {alert.status === 'acknowledged' && hasRole('doctor', 'admin') && (
                         <button
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Mark Resolved logic here if needed
+                          }}
                           className="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-xl hover:bg-green-700 transition-all shadow-sm flex items-center justify-center min-w-[120px]"
                         >
                           Mark Resolved

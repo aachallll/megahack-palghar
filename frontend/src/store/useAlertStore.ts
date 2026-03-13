@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand';
-import { devtools, subscribeWithSelector } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware';
 import type { Alert, ActiveAlert } from '@/types/database';
 
 interface AlertState {
@@ -28,7 +28,6 @@ interface AlertState {
 
 export const useAlertStore = create<AlertState>()(
     devtools(
-        subscribeWithSelector(
         (set) => ({
             patientAlerts: {},
             setPatientAlerts: (patientId, alerts) =>
@@ -66,7 +65,7 @@ export const useAlertStore = create<AlertState>()(
             unreadCount: 0,
             setUnreadCount: (count) => set({ unreadCount: count }),
             decrementUnread: () => set((s) => ({ unreadCount: Math.max(0, s.unreadCount - 1) })),
-        })),
+        }),
         { name: 'AlertStore' }
     )
 );

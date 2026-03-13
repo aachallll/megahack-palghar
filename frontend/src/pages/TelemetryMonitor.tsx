@@ -13,6 +13,7 @@ import RiskBadge from '@/components/RiskBadge';
 import PredictiveRiskRing from '@/components/PredictiveRiskRing';
 import TimeToAlertCountdown from '@/components/TimeToAlertCountdown';
 import Sparkline from '@/components/Sparkline';
+import LivePhysiologicalWave from '@/components/LivePhysiologicalWave';
 import { SkeletonVitalCard } from '@/components/SkeletonCard';
 import { Button } from '@/components/ui/button';
 import {
@@ -380,84 +381,8 @@ function LabStatusBadge({ status }: { status: string }) {
   return <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${s[status] || 'bg-muted text-muted-foreground border border-border'}`}>{status}</span>;
 }
 
-// Bedside Monitor Row Component
-function ClinicalMonitorRow({
-  label, value, value2, unit, color, data, trend, precision = 0
-}: {
-  label: string; value: number | null | undefined; value2?: number | null;
-  unit: string; color: string; data: number[];
-  trend?: VitalTrend; precision?: number;
-}) {
-  const chartData = useMemo(() => data.map((v, i) => ({ t: i, v })), [data]);
-  const isAlarming = trend?.alarming;
-
-  return (
-    <div className={`flex bg-[#0a0a0a] border-b border-white/5 last:border-b-0 h-[100px] overflow-hidden group transition-colors hover:bg-[#111] ${isAlarming ? 'bg-red-950/20' : ''}`}>
-      <div className="flex-1 relative py-1">
-        <div className="absolute top-2 left-3 text-[10px] uppercase font-black tracking-[0.2em] z-10 drop-shadow-md" style={{ color }}>
-          {label}
-        </div>
-        <div className="absolute top-2 right-3 z-10 opacity-30 group-hover:opacity-60 transition-opacity">
-          <Activity className="h-3 w-3" style={{ color }} />
-        </div>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 25, right: 10, left: 10, bottom: 5 }}>
-            <defs>
-              <linearGradient id={`g-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
-                <stop offset="100%" stopColor={color} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area
-              type="monotone"
-              dataKey="v"
-              stroke={color}
-              strokeWidth={2.5}
-              fill={`url(#g-${color.replace('#', '')})`}
-              dot={false}
-              isAnimationActive={false}
-              baseLine={Math.min(...data) * 0.9}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-      <div className="w-[160px] border-l border-white/10 flex flex-col justify-center px-6" style={{ color }}>
-        <div className="flex items-baseline gap-1">
-          <span className="text-5xl font-black font-mono tracking-tighter tabular-nums leading-none">
-            {value != null ? <AnimatedNumber value={value} precision={precision} /> : '--'}
-          </span>
-          {value2 != null && (
-            <span className="text-2xl font-bold opacity-60 tabular-nums">
-              /<AnimatedNumber value={value2} />
-            </span>
-          )}
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{unit}</span>
-            {trend && (
-              <div className="flex items-center gap-1 mt-0.5">
-                <TrendArrow direction={trend.direction} alarming={trend.alarming} />
-                <span className={`text-[0.6rem] font-bold ${trend.alarming ? 'text-red-500' : 'opacity-40'}`}>
-                  {trend.change_percent >= 0 ? '+' : ''}{trend.change_percent.toFixed(1)}%
-                </span>
-              </div>
-            )}
-          </div>
-          {isAlarming && (
-            <motion.div
-              animate={{ opacity: [1, 0.4, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-              className="bg-red-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded leading-none"
-            >
-              ALARM
-            </motion.div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+// Bedside Monitor — No longer uses ClinicalMonitorRow; the Philips-style
+// monitor is rendered inline below.
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -910,85 +835,134 @@ export default function TelemetryMonitor() {
         </AnimatePresence>
       </motion.div>
 
-      {/* ── Clinical Bedside Monitor Layout (Waveform Focus) ── */}
+      {/* ══ EXACT 1:1 REPLICA MONITOR (MATCHING USER IMAGE) ══ */}
       {!loading && displayVital && (
-        <div className="rounded-2xl border border-white/10 bg-[#050505] overflow-hidden shadow-2xl">
-          <div className="bg-[#111] px-4 py-2 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-      <div className="flex flex-col">
-                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Patient Monitor</span>
-                <span className="text-xs font-bold text-white tracking-tight">Active Surveillance Mode</span>
-              </div>
-              <div className="h-8 w-px bg-white/10" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col">
-                  <span className="text-[9px] text-gray-500 font-bold uppercase">Sweep Speed</span>
-                  <span className="text-[10px] text-emerald-400 font-mono">25 mm/s</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[9px] text-gray-500 font-bold uppercase">Source</span>
-                  <span className="text-[10px] text-blue-400 font-mono">Telemetry Node B4</span>
-                </div>
-              </div>
+        <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-[#2c2c2c] select-none" style={{ background: '#050505' }}>
+
+          {/* Header Bar */}
+          <div className="flex items-center justify-between px-6 py-2.5 border-b border-[#111] bg-[#111]">
+            <div className="flex items-center gap-6 text-[13px] font-black font-mono tracking-tight">
+              <span className="text-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.3)]">{patientRecord ? patientRecord.mrn : 'PMC-2025-001'}</span>
+              <span className="text-[#333]">|</span>
+              <span className="text-gray-100 uppercase tracking-tighter">{patientRecord ? `${patientRecord.first_name} ${patientRecord.last_name}` : 'Patient Name'}</span>
+              <span className="text-[#333]">|</span>
+              <span className="text-gray-500 font-bold uppercase">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>
+              <span className="text-gray-400 tabular-nums ml-1">{new Date().toLocaleTimeString('en-US', { hour12: false })}</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-white/60">
-                {new Date().toLocaleTimeString()}
+            <div className="flex items-center gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+              <span>Adult Mode</span>
+              <div className="flex items-center gap-2">
+                <span className="text-blue-500/80">Telemetry Live</span>
+                <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
               </div>
-              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             </div>
           </div>
 
-          <div className="flex flex-col">
-            <ClinicalMonitorRow
-              label="HR / Heart Rate"
-              value={displayVital?.heart_rate ?? null}
-              unit="bpm"
-              color="#10b981"
-              data={waveHR}
-              trend={trendMap['hr']}
-            />
-            <ClinicalMonitorRow
-              label="SpO2 / Oxygen Sat"
-              value={displayVital?.oxygen_saturation ?? null}
-              unit="%"
-              color="#facc15"
-              data={waveSPO2}
-              trend={trendMap['spo2']}
-            />
-            <ClinicalMonitorRow
-              label="Pulse / Pleth"
-              value={displayVital?.pulse ?? displayVital?.heart_rate ?? null}
-              unit="bpm"
-              color="#facc15"
-              data={wavePulse}
-              trend={trendMap['pulse']}
-            />
-            <ClinicalMonitorRow
-              label="ABP / Blood Pressure"
-              value={displayVital?.blood_pressure_systolic ?? null}
-              value2={displayVital?.blood_pressure_diastolic ?? null}
-              unit="mmHg"
-              color="#ef4444"
-              data={waveBP}
-              trend={trendMap['bp']}
-            />
-            <ClinicalMonitorRow
-              label="etCO2 / Capnography"
-              value={displayVital?.etco2 ?? null}
-              unit="mmHg"
-              color="#ffffff"
-              data={waveEtCO2}
-              trend={trendMap['etco2']}
-            />
-            <ClinicalMonitorRow
-              label="awRR / Respiratory"
-              value={displayVital?.aw_rr ?? displayVital?.respiratory_rate ?? null}
-              unit="/min"
-              color="#ffffff"
-              data={waveAwRR}
-              trend={trendMap['aw_rr']}
-            />
+          {/* Main Monitor Area: Perfectly Aligned 1:1 Rows */}
+          <div className="flex flex-col bg-black">
+            
+            {/* ROW 1: HR */}
+            <div className="flex border-b border-[#111] h-[95px]">
+              <div className="flex-1 relative">
+                <LivePhysiologicalWave type="ecg" color="#10b981" label="HR / Heart Rate" rate={displayVital.heart_rate ?? 75} height={95} showGrid />
+              </div>
+              <div className="w-[170px] flex flex-col justify-center items-end px-6 bg-[#0a0a0a] border-l border-[#111]">
+                <span className="text-[72px] font-black font-mono leading-none text-[#10b981] tabular-nums tracking-tighter shadow-[#10b981]">
+                  {displayVital.heart_rate != null ? <AnimatedNumber value={displayVital.heart_rate} /> : '--'}
+                </span>
+                <span className="text-[10px] font-black text-[#10b981]/60 uppercase tracking-tighter mt-[-4px]">BPM</span>
+              </div>
+            </div>
+
+            {/* ROW 2: SpO2 */}
+            <div className="flex border-b border-[#111] h-[95px]">
+              <div className="flex-1 relative">
+                <LivePhysiologicalWave type="pleth" color="#fbbf24" label="SPO2 / Oxygen Sat" rate={displayVital.heart_rate ?? 75} height={95} showGrid />
+              </div>
+              <div className="w-[170px] flex flex-col justify-center items-end px-6 bg-[#0a0a0a] border-l border-[#111]">
+                <span className="text-[72px] font-black font-mono leading-none text-[#fbbf24] tabular-nums tracking-tighter">
+                  {displayVital.oxygen_saturation != null ? <AnimatedNumber value={displayVital.oxygen_saturation} /> : '--'}
+                </span>
+                <span className="text-[10px] font-black text-[#fbbf24]/60 uppercase tracking-tighter mt-[-4px]">%</span>
+              </div>
+            </div>
+
+            {/* ROW 3: Pulse / Pleth */}
+            <div className="flex border-b border-[#111] h-[95px]">
+              <div className="flex-1 relative">
+                <LivePhysiologicalWave type="pleth" color="#fbbf24" label="Pulse / Pleth" rate={displayVital.heart_rate ?? 75} height={95} showGrid />
+              </div>
+              <div className="w-[170px] flex flex-col justify-center items-end px-6 bg-[#0a0a0a] border-l border-[#111]">
+                <span className="text-[72px] font-black font-mono leading-none text-[#fbbf24] tabular-nums tracking-tighter">
+                  {(displayVital.pulse ?? displayVital.heart_rate) != null ? <AnimatedNumber value={(displayVital.pulse ?? displayVital.heart_rate)!} /> : '--'}
+                </span>
+                <span className="text-[10px] font-black text-[#fbbf24]/60 uppercase tracking-tighter mt-[-4px]">BPM</span>
+              </div>
+            </div>
+
+            {/* ROW 4: ABP */}
+            <div className="flex border-b border-[#111] h-[95px]">
+              <div className="flex-1 relative">
+                <LivePhysiologicalWave type="abp" color="#ef4444" label="ABP / Blood Pressure" rate={displayVital.heart_rate ?? 75} height={95} showGrid />
+              </div>
+              <div className="w-[170px] flex flex-col justify-center items-end px-6 bg-[#0a0a0a] border-l border-[#111]">
+                <div className="flex items-baseline gap-1 mt-[-8px]">
+                  <span className="text-[52px] font-black font-mono leading-none text-[#ef4444] tabular-nums tracking-tighter">
+                    {displayVital.blood_pressure_systolic != null ? <AnimatedNumber value={displayVital.blood_pressure_systolic} /> : '--'}
+                  </span>
+                  <span className="text-[28px] font-black font-mono text-[#ef4444]/60">
+                    /{displayVital.blood_pressure_diastolic != null ? <AnimatedNumber value={displayVital.blood_pressure_diastolic} /> : '--'}
+                  </span>
+                </div>
+                <span className="text-[10px] font-black text-[#ef4444]/60 uppercase tracking-tighter">mmHg</span>
+              </div>
+            </div>
+
+            {/* ROW 5: etCO2 */}
+            <div className="flex border-b border-[#111] h-[95px]">
+              <div className="flex-1 relative">
+                <LivePhysiologicalWave type="co2" color="#ffffff" label="ETCO2 / Capnography" rate={displayVital.respiratory_rate ?? 16} height={95} showGrid />
+              </div>
+              <div className="w-[170px] flex flex-col justify-center items-end px-6 bg-[#0a0a0a] border-l border-[#111]">
+                <span className="text-[72px] font-black font-mono leading-none text-white tabular-nums tracking-tighter">
+                  {displayVital.etco2 != null ? <AnimatedNumber value={displayVital.etco2} /> : '--'}
+                </span>
+                <span className="text-[10px] font-black text-white/50 uppercase tracking-tighter mt-[-4px]">mmHg</span>
+              </div>
+            </div>
+
+            {/* ROW 6: Resp */}
+            <div className="flex h-[95px]">
+              <div className="flex-1 relative">
+                <LivePhysiologicalWave type="resp" color="#ffffff" label="AWRR / Respiratory" rate={displayVital.respiratory_rate ?? 16} height={95} showGrid />
+              </div>
+              <div className="w-[170px] flex flex-col justify-center items-end px-6 bg-[#0a0a0a] border-l border-[#111]">
+                <span className="text-[72px] font-black font-mono leading-none text-white tabular-nums tracking-tighter">
+                  {displayVital.respiratory_rate != null ? <AnimatedNumber value={displayVital.respiratory_rate} /> : '--'}
+                </span>
+                <span className="text-[10px] font-black text-white/50 uppercase tracking-tighter mt-[-4px]">/MIN</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Control Panel (Premium Medical Style) */}
+          <div className="flex items-center justify-between px-8 py-3.5 border-t border-[#1a1a1a] bg-[#0c0c0c]">
+            <div className="flex items-center gap-3">
+              <button className="px-6 py-2 bg-[#1a1a1a] hover:bg-[#252525] text-[11px] font-black text-gray-400 rounded transition-all active:scale-95 uppercase tracking-widest border border-white/5">Silence</button>
+              <button className="px-6 py-2 bg-[#6b2121] hover:bg-[#852525] text-[11px] font-black text-white rounded transition-all active:scale-95 uppercase tracking-widest border border-white/10 shadow-[0_0_15px_rgba(239,68,68,0.2)]">Pause Alarms</button>
+              <button className="px-6 py-2 bg-[#1a1a1a] hover:bg-[#252525] text-[11px] font-black text-gray-400 rounded transition-all active:scale-95 uppercase tracking-widest border border-white/5">Trend History</button>
+              <button className="px-6 py-2 bg-[#1a1a1a] hover:bg-[#252525] text-[11px] font-black text-gray-400 rounded transition-all active:scale-95 uppercase tracking-widest border border-white/5">NBP Setup</button>
+            </div>
+            <div className="flex items-center gap-8 text-[11px] font-black font-mono text-gray-500 uppercase tracking-tighter">
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+                <span className="text-gray-400">Network Connected</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">Clock:</span>
+                <span className="text-gray-200 tabular-nums">{new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

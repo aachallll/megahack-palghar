@@ -3,6 +3,7 @@ import { NavLink, useLocation, Outlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import LiveAlertPanel from '@/components/LiveAlertPanel';
+import AIClinicCopilot from '@/components/AIClinicCopilot';
 import {
   Activity,
   LayoutGrid,
@@ -364,9 +365,9 @@ export default function DashboardLayout() {
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className="flex-1 min-h-screen hidden md:block"
       >
-        {/* Desktop Header with Logout */}
+        {/* Desktop Header with Voice Alert + Logout */}
         {user && (
-          <div className="fixed top-4 right-4 z-50">
+          <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
             <button 
               onClick={() => {
                 if (confirm('Are you sure you want to log out?')) {
@@ -426,6 +427,9 @@ export default function DashboardLayout() {
       <div className="hidden md:block">
         <LiveAlertPanel />
       </div>
+
+      {/* AI Clinic Copilot — Feature #2 */}
+      <AIClinicCopilot />
     </div>
   );
 }
